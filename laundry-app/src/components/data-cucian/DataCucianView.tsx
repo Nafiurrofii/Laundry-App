@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calendar, ChevronDown, Plus } from 'lucide-react';
+import { Calendar, ChevronDown, Plus, RefreshCw } from 'lucide-react';
 import { useDataCucianViewModel } from './hooks/useDataCucianViewModel';
 import { DataCucianStats } from './DataCucianStats';
 import { OrderTable } from './OrderTable';
@@ -21,6 +21,8 @@ export const DataCucianView: React.FC = () => {
     setActiveTab,
     tabCounts,
     isAddModalOpen,
+    isSyncing,
+    syncData,
     openAddModal,
     closeAddModal,
     handleStatusChange,
@@ -54,6 +56,16 @@ export const DataCucianView: React.FC = () => {
 
           <span className="today-badge">Hari ini</span>
           <span className="last-updated">Terakhir diperbarui 10.30 WIB</span>
+
+          <button
+            className="sync-btn"
+            onClick={syncData}
+            disabled={isSyncing}
+            title="Muat ulang & sinkronkan dengan database Supabase"
+          >
+            <RefreshCw size={13} className={isSyncing ? 'spin-icon' : ''} />
+            <span>{isSyncing ? 'Menyinkronkan...' : 'Sinkron Database'}</span>
+          </button>
         </div>
       </div>
 
@@ -145,6 +157,44 @@ export const DataCucianView: React.FC = () => {
         .last-updated {
           font-size: 12.5px;
           color: #64748b;
+        }
+
+        .sync-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: #ffffff;
+          border: 1px solid var(--border-light);
+          border-radius: var(--radius-full);
+          font-size: 12px;
+          font-weight: 600;
+          color: #0f766e;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        .sync-btn:hover:not(:disabled) {
+          background: #e6f7f5;
+          border-color: #99f6e4;
+        }
+
+        .sync-btn:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+
+        .spin-icon {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .page-footer-note {

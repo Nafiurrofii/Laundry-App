@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Search, Receipt, Printer, X, CheckCircle2 } from 'lucide-react';
+import { Search, Receipt, Printer, X } from 'lucide-react';
 import { useTransaksiViewModel } from './hooks/useTransaksiViewModel';
+import { LAUNDRY_STATUS_LABEL, PAYMENT_METHOD_LABEL, PAYMENT_STATUS_LABEL } from '@/lib/database.types';
 
 export const TransaksiView: React.FC = () => {
   const {
@@ -18,7 +19,7 @@ export const TransaksiView: React.FC = () => {
   return (
     <div className="transaksi-view">
       <div className="transaksi-header">
-        <h1 className="page-title">Transaksi & Pembayaran</h1>
+        <h1 className="page-title">Transaksi &amp; Pembayaran</h1>
         <p className="page-subtitle">
           Daftar seluruh nota transaksi cucian dan status pembayaran pelanggan.
         </p>
@@ -79,24 +80,27 @@ export const TransaksiView: React.FC = () => {
             </thead>
             <tbody>
               {filteredOrders.map((o) => (
-                <tr key={o.id}>
-                  <td className="id-cell">{o.id}</td>
-                  <td className="cust-cell">{o.customerName}</td>
-                  <td>{o.service}</td>
-                  <td>{o.weight} kg</td>
+                <tr key={o.receipt_number}>
+                  <td className="id-cell">{o.receipt_number}</td>
+                  <td className="cust-cell">{o.customer.name}</td>
+                  <td>{o.service.service_name}</td>
+                  <td>{o.weight_kg} kg</td>
                   <td className="bold-cell">
-                    Rp{o.totalPrice.toLocaleString('id-ID')}
+                    Rp{o.total_price.toLocaleString('id-ID')}
                   </td>
                   <td>
                     <span
-                      className={`badge ${
-                        o.isPaid ? 'badge-siap' : 'badge-keluar'
-                      }`}
+                      className={`badge ${o.payment_status === 'Paid' ? 'badge-siap' : 'badge-keluar'
+                        }`}
                     >
-                      {o.isPaid ? 'Lunas' : 'Belum Lunas'}
+                      {PAYMENT_STATUS_LABEL[o.payment_status]}
                     </span>
                   </td>
-                  <td>{o.paymentMethod || '-'}</td>
+                  <td>
+                    {o.payment_method
+                      ? PAYMENT_METHOD_LABEL[o.payment_method]
+                      : '-'}
+                  </td>
                   <td style={{ textAlign: 'right' }}>
                     <button
                       className="btn-outline view-receipt-btn"
@@ -130,27 +134,29 @@ export const TransaksiView: React.FC = () => {
             <div className="receipt-details">
               <div className="receipt-row">
                 <span>No. Nota:</span>
-                <strong>{selectedOrder.id}</strong>
+                <strong>{selectedOrder.receipt_number}</strong>
               </div>
               <div className="receipt-row">
                 <span>Pelanggan:</span>
-                <strong>{selectedOrder.customerName}</strong>
+                <strong>{selectedOrder.customer.name}</strong>
               </div>
               <div className="receipt-row">
                 <span>Layanan:</span>
-                <span>{selectedOrder.service}</span>
+                <span>{selectedOrder.service.service_name}</span>
               </div>
               <div className="receipt-row">
                 <span>Berat:</span>
-                <span>{selectedOrder.weight} kg</span>
+                <span>{selectedOrder.weight_kg} kg</span>
               </div>
               <div className="receipt-row">
                 <span>Tarif/kg:</span>
-                <span>Rp{selectedOrder.pricePerKg.toLocaleString('id-ID')}</span>
+                <span>Rp{selectedOrder.price_per_kg.toLocaleString('id-ID')}</span>
               </div>
               <div className="receipt-row">
                 <span>Status Cucian:</span>
-                <span className="badge badge-siap">{selectedOrder.status}</span>
+                <span className="badge badge-siap">
+                  {LAUNDRY_STATUS_LABEL[selectedOrder.status]}
+                </span>
               </div>
             </div>
 
@@ -159,13 +165,13 @@ export const TransaksiView: React.FC = () => {
             <div className="receipt-total-row">
               <span>TOTAL</span>
               <span className="total-val">
-                Rp{selectedOrder.totalPrice.toLocaleString('id-ID')}
+                Rp{selectedOrder.total_price.toLocaleString('id-ID')}
               </span>
             </div>
             <div className="receipt-row mt-2">
               <span>Status Bayar:</span>
-              <strong className={selectedOrder.isPaid ? 'text-teal' : 'text-danger'}>
-                {selectedOrder.isPaid ? 'LUNAS' : 'BELUM DIBAYAR'}
+              <strong className={selectedOrder.payment_status === 'Paid' ? 'text-teal' : 'text-danger'}>
+                {PAYMENT_STATUS_LABEL[selectedOrder.payment_status].toUpperCase()}
               </strong>
             </div>
 

@@ -19,6 +19,12 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ currentPageTitle }) => {
 
       {/* Right actions & user profile */}
       <div className="navbar-right">
+        {/* Supabase Status Pill */}
+        <div className="db-status-pill" title="Terhubung ke Supabase PostgreSQL">
+          <span className="db-dot" />
+          <span className="db-text">Supabase Connected</span>
+        </div>
+
         {/* Notification Button */}
         <button className="notif-btn" aria-label="Notifikasi">
           <Bell size={18} />
@@ -72,7 +78,29 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ currentPageTitle }) => {
         .navbar-right {
           display: flex;
           align-items: center;
-          gap: 20px;
+          gap: 16px;
+        }
+
+        .db-status-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          color: #166534;
+          padding: 4px 10px;
+          border-radius: 999px;
+          font-size: 11.5px;
+          font-weight: 600;
+          letter-spacing: -0.1px;
+        }
+
+        .db-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #22c55e;
+          box-shadow: 0 0 0 2px #dcfce7;
         }
 
         .notif-btn {

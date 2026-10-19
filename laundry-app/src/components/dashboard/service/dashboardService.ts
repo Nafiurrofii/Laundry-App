@@ -1,4 +1,5 @@
-import { dataStore, LaundryOrder } from '@/lib/dataStore';
+import { dataStore } from '@/lib/dataStore';
+import type { TransactionWithRelations } from '@/lib/database.types';
 import { DashboardMetrics, OperationalStatusCounts, RevenueTrendItem } from '../types';
 
 export class DashboardService {
@@ -7,17 +8,17 @@ export class DashboardService {
    */
   public static getMetrics(): DashboardMetrics {
     const orders = dataStore.getOrders();
-    const readyOrders = orders.filter((o) => o.status === 'Siap diambil');
-    const readyCustomers = Array.from(new Set(readyOrders.map((o) => o.customerName)));
+    const readyOrders = orders.filter((o) => o.status === 'Completed');
+    const readyCustomers = Array.from(new Set(readyOrders.map((o) => o.customer.name)));
 
-    const totalWeight = orders.reduce((sum, o) => sum + o.weight, 0);
-    const serviceSet = new Set(orders.map((o) => o.service));
-    const paidOrders = orders.filter((o) => o.isPaid);
-    const incomingPayment = paidOrders.reduce((sum, o) => sum + o.paidAmount, 0);
+    const totalWeight = orders.reduce((sum, o) => sum + o.weight_kg, 0);
+    const serviceSet = new Set(orders.map((o) => o.service.service_name));
+    const paidOrders = orders.filter((o) => o.payment_status === 'Paid');
+    const incomingPayment = paidOrders.reduce((sum, o) => sum + o.amount_paid, 0);
 
     return {
       todayOrdersCount: orders.length,
-      pendingPickupCount: orders.filter((o) => o.status !== 'Selesai').length,
+      pendingPickupCount: orders.filter((o) => o.status !== 'Picked Up').length,
       totalWeight,
       serviceTypesCount: serviceSet.size || 3,
       incomingPayment,
@@ -50,16 +51,16 @@ export class DashboardService {
   }
 
   /**
-   * Mengambil rincian status operasional hari ini
+   * Mengambil rincian status operasional hari ini (sesuai DB enum)
    */
   public static getOperationalStatus(): OperationalStatusCounts {
     const orders = dataStore.getOrders();
     return {
-      diterima: orders.filter((o) => o.status === 'Diterima').length,
-      dicuci: orders.filter((o) => o.status === 'Dicuci').length,
-      disetrika: orders.filter((o) => o.status === 'Disetrika').length,
-      siapDiambil: orders.filter((o) => o.status === 'Siap diambil').length,
-      selesai: orders.filter((o) => o.status === 'Selesai').length,
+      diterima: orders.filter((o) => o.status === 'Received').length,
+      dicuci: orders.filter((o) => o.status === 'Processing').length,
+      disetrika: 0, // Tidak ada lagi status "Disetrika" di DB baru
+      siapDiambil: orders.filter((o) => o.status === 'Completed').length,
+      selesai: orders.filter((o) => o.status === 'Picked Up').length,
       total: orders.length,
     };
   }
@@ -67,7 +68,8 @@ export class DashboardService {
   /**
    * Mengambil pesanan terbaru untuk tabel ringkasan
    */
-  public static getRecentOrders(limit: number = 3): LaundryOrder[] {
+  public static getRecentOrders(limit: number = 3): TransactionWithRelations[] {
     return dataStore.getOrders().slice(0, limit);
   }
 }
+

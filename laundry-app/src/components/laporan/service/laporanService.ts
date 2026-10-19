@@ -1,4 +1,4 @@
-import { dataStore, LaundryOrder, CashTransaction } from '@/lib/dataStore';
+import { dataStore, cashFlowStore } from '@/lib/dataStore';
 import {
   LaporanSummary,
   ServiceCompositionItem,
@@ -9,13 +9,13 @@ import {
 export class LaporanService {
   public static getReportData() {
     const orders = dataStore.getOrders();
-    const transactions = dataStore.getTransactions();
+    const transactions = cashFlowStore.getTransactions();
 
-    const totalWeight = orders.reduce((sum, o) => sum + o.weight, 0);
-    const totalOrderValue = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+    const totalWeight = orders.reduce((sum, o) => sum + (o.weight_kg || 0), 0);
+    const totalOrderValue = orders.reduce((sum, o) => sum + (o.total_price || 0), 0);
 
-    const paidOrders = orders.filter((o) => o.isPaid);
-    const incomingCash = paidOrders.reduce((sum, o) => sum + o.paidAmount, 0);
+    const paidOrders = orders.filter((o) => o.payment_status === 'Paid');
+    const incomingCash = orders.reduce((sum, o) => sum + (o.amount_paid || 0), 0);
 
     const expenses = transactions
       .filter((t) => t.type === 'Kas keluar')
@@ -36,10 +36,10 @@ export class LaporanService {
     // Services
     const serviceNames = ['Cuci Setrika', 'Cuci Kering', 'Cuci Basah'];
     const serviceDetails: ServiceDetailRow[] = serviceNames.map((svc) => {
-      const matching = orders.filter((o) => o.service === svc);
-      const weight = matching.reduce((sum, o) => sum + o.weight, 0);
-      const orderValue = matching.reduce((sum, o) => sum + o.totalPrice, 0);
-      const paid = matching.reduce((sum, o) => sum + (o.isPaid ? o.paidAmount : 0), 0);
+      const matching = orders.filter((o) => o.service?.service_name === svc);
+      const weight = matching.reduce((sum, o) => sum + (o.weight_kg || 0), 0);
+      const orderValue = matching.reduce((sum, o) => sum + (o.total_price || 0), 0);
+      const paid = matching.reduce((sum, o) => sum + (o.amount_paid || 0), 0);
 
       return {
         serviceName: svc,

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Scale, Sparkles, SlidersHorizontal, Droplet, Sparkle } from 'lucide-react';
+import { Scale, Sparkles, SlidersHorizontal, Droplet, Loader2, FlaskConical } from 'lucide-react';
 import {
   ServiceTypeOption,
   FragranceIntensity,
@@ -11,21 +11,25 @@ import {
 interface KalkulatorFormCardProps {
   input: PredictionInput;
   todayWeight: number;
+  isLoading: boolean;
   onWeightChange: (val: number) => void;
   onServiceChange: (service: ServiceTypeOption) => void;
   onIntensityChange: (intensity: FragranceIntensity) => void;
   onVariantChange: (variant: string) => void;
   onApplyPreset: (kg: number) => void;
+  onHitung: () => void;
 }
 
 export const KalkulatorFormCard: React.FC<KalkulatorFormCardProps> = ({
   input,
   todayWeight,
+  isLoading,
   onWeightChange,
   onServiceChange,
   onIntensityChange,
   onVariantChange,
   onApplyPreset,
+  onHitung,
 }) => {
   return (
     <div className="card kalkulator-card">
@@ -174,6 +178,32 @@ export const KalkulatorFormCard: React.FC<KalkulatorFormCardProps> = ({
             </div>
           </div>
         )}
+
+        {/* Tombol Hitung */}
+        <div className="hitung-action-row">
+          <button
+            id="btn-hitung-prediksi"
+            type="button"
+            className={`btn-hitung ${isLoading ? 'btn-hitung-loading' : ''}`}
+            onClick={onHitung}
+            disabled={isLoading || input.weightKg <= 0}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 size={18} className="spin" />
+                <span>Menghitung...</span>
+              </>
+            ) : (
+              <>
+                <FlaskConical size={18} />
+                <span>Hitung Prediksi</span>
+              </>
+            )}
+          </button>
+          <p className="hitung-hint">
+            Klik untuk menghitung kebutuhan bahan baku berdasarkan input di atas
+          </p>
+        </div>
       </div>
 
       <style jsx>{`
@@ -345,6 +375,10 @@ export const KalkulatorFormCard: React.FC<KalkulatorFormCardProps> = ({
           color: #0d9488;
         }
 
+        .intensity-btn.active .int-title {
+          color: #0d9488;
+        }
+
         .int-title {
           font-size: 13px;
           font-weight: 700;
@@ -356,12 +390,81 @@ export const KalkulatorFormCard: React.FC<KalkulatorFormCardProps> = ({
           color: #64748b;
         }
 
+        /* Tombol Hitung */
+        .hitung-action-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-top: 24px;
+          padding-top: 20px;
+          border-top: 1px dashed var(--border-light);
+        }
+
+        .btn-hitung {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 13px 32px;
+          border-radius: var(--radius-md);
+          font-size: 15px;
+          font-weight: 700;
+          color: #ffffff;
+          background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+          box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .btn-hitung:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(13, 148, 136, 0.45);
+          background: linear-gradient(135deg, #0f766e 0%, #0e7490 100%);
+        }
+
+        .btn-hitung:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        .btn-hitung:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .btn-hitung-loading {
+          background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+          box-shadow: none;
+        }
+
+        .hitung-hint {
+          font-size: 12.5px;
+          color: #94a3b8;
+          line-height: 1.5;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+
         @media (max-width: 768px) {
           .options-grid {
             grid-template-columns: 1fr;
           }
           .intensity-buttons {
             grid-template-columns: 1fr;
+          }
+          .hitung-action-row {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .btn-hitung {
+            width: 100%;
+            justify-content: center;
           }
         }
       `}</style>

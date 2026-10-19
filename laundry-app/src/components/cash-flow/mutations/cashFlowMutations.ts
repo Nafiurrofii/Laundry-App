@@ -1,9 +1,9 @@
-import { dataStore, CashTransaction } from '@/lib/dataStore';
+import { cashFlowStore, CashTransaction } from '@/lib/cashFlowStore';
 import { CreateExpenseInput } from '../types';
 
 export class CashFlowMutations {
   public static addExpense(input: CreateExpenseInput): CashTransaction {
-    return dataStore.addTransaction({
+    return cashFlowStore.addTransaction({
       description: input.description,
       category: input.category,
       type: 'Kas keluar',

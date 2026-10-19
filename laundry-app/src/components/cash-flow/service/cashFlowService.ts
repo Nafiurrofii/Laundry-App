@@ -1,13 +1,13 @@
-import { dataStore, CashTransaction } from '@/lib/dataStore';
+import { cashFlowStore, CashTransaction } from '@/lib/cashFlowStore';
 import { CashFlowSummary, ExpenseCompositionItem, CashFlowTab } from '../types';
 
 export class CashFlowService {
   public static getAllTransactions(): CashTransaction[] {
-    return dataStore.getTransactions();
+    return cashFlowStore.getTransactions();
   }
 
   public static getSummary(transactions: CashTransaction[]): CashFlowSummary {
-    const startingBalance = dataStore.getInitialCashBalance();
+    const startingBalance = cashFlowStore.getInitialCashBalance();
 
     const incomeList = transactions.filter((t) => t.type === 'Kas masuk');
     const expenseList = transactions.filter((t) => t.type === 'Kas keluar');
@@ -68,3 +68,4 @@ export class CashFlowService {
     return transactions;
   }
 }
+

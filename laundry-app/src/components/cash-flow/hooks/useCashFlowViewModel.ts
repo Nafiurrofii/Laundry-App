@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { dataStore, CashTransaction } from '@/lib/dataStore';
+import { cashFlowStore, CashTransaction } from '@/lib/cashFlowStore';
 import { CashFlowService } from '../service/cashFlowService';
 import { CashFlowMutations } from '../mutations/cashFlowMutations';
 import { CashFlowTab, CreateExpenseInput } from '../types';
@@ -12,12 +12,12 @@ export function useCashFlowViewModel() {
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
 
   const refresh = useCallback(() => {
-    setTransactions(dataStore.getTransactions());
+    setTransactions(cashFlowStore.getTransactions());
   }, []);
 
   useEffect(() => {
     refresh();
-    const unsubscribe = dataStore.subscribe(refresh);
+    const unsubscribe = cashFlowStore.subscribe(refresh);
     return () => unsubscribe();
   }, [refresh]);
 

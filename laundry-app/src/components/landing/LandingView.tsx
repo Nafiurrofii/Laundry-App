@@ -16,6 +16,7 @@ import {
   X,
   CheckCircle2,
 } from 'lucide-react';
+import { LAUNDRY_STATUS_LABEL } from '@/lib/database.types';
 import { useLandingViewModel } from './hooks/useLandingViewModel';
 
 export const LandingView: React.FC = () => {
@@ -230,69 +231,74 @@ export const LandingView: React.FC = () => {
               <div className="tracking-result-box">
                 <div className="result-header">
                   <div>
-                    <span className="res-id">{trackingResult.id}</span>
-                    <h4 className="res-name">{trackingResult.customerName}</h4>
+                    <span className="res-id">{trackingResult.receipt_number}</span>
+                    <h4 className="res-name">{trackingResult.customer?.name}</h4>
                   </div>
-                  <span className="badge badge-siap">{trackingResult.status}</span>
+                  <span className="badge badge-siap">
+                    {LAUNDRY_STATUS_LABEL[trackingResult.status] || trackingResult.status}
+                  </span>
                 </div>
 
                 <div className="timeline-stepper">
-                  {['Diterima', 'Dicuci', 'Disetrika', 'Siap diambil', 'Selesai'].map(
-                    (step, idx) => {
-                      const stepOrder = [
-                        'Diterima',
-                        'Dicuci',
-                        'Disetrika',
-                        'Siap diambil',
-                        'Selesai',
-                      ];
-                      const currentIdx = stepOrder.indexOf(trackingResult.status);
-                      const isCompleted = idx <= currentIdx;
-                      const isCurrent = idx === currentIdx;
+                  {[
+                    { key: 'Received', label: 'Diterima' },
+                    { key: 'Processing', label: 'Diproses' },
+                    { key: 'Completed', label: 'Siap Diambil' },
+                    { key: 'Picked Up', label: 'Selesai' },
+                  ].map((step, idx) => {
+                    const stepOrder = ['Received', 'Processing', 'Completed', 'Picked Up'];
+                    const currentIdx = stepOrder.indexOf(trackingResult.status);
+                    const isCompleted = idx <= currentIdx;
+                    const isCurrent = idx === currentIdx;
 
-                      return (
-                        <div key={step} className="step-node">
-                          <div
-                            className={`step-circle ${
-                              isCompleted ? 'completed' : ''
-                            } ${isCurrent ? 'current' : ''}`}
-                          >
-                            {isCompleted ? <Check size={12} /> : idx + 1}
-                          </div>
-                          <span
-                            className={`step-text ${isCurrent ? 'active' : ''}`}
-                          >
-                            {step}
-                          </span>
+                    return (
+                      <div key={step.key} className="step-node">
+                        <div
+                          className={`step-circle ${
+                            isCompleted ? 'completed' : ''
+                          } ${isCurrent ? 'current' : ''}`}
+                        >
+                          {isCompleted ? <Check size={12} /> : idx + 1}
                         </div>
-                      );
-                    }
-                  )}
+                        <span
+                          className={`step-text ${isCurrent ? 'active' : ''}`}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="order-spec-card">
                   <div className="spec-item">
                     <span className="label">Layanan:</span>
-                    <span className="val">{trackingResult.service}</span>
+                    <span className="val">{trackingResult.service?.service_name}</span>
                   </div>
                   <div className="spec-item">
                     <span className="label">Berat:</span>
-                    <span className="val">{trackingResult.weight} kg</span>
+                    <span className="val">{trackingResult.weight_kg} kg</span>
                   </div>
                   <div className="spec-item">
                     <span className="label">Total Biaya:</span>
                     <span className="val font-bold">
-                      Rp{trackingResult.totalPrice.toLocaleString('id-ID')}
+                      Rp{(trackingResult.total_price ?? 0).toLocaleString('id-ID')}
                     </span>
                   </div>
                   <div className="spec-item">
                     <span className="label">Pembayaran:</span>
                     <span
                       className={
-                        trackingResult.isPaid ? 'text-teal' : 'text-danger'
+                        trackingResult.payment_status === 'Paid'
+                          ? 'text-teal'
+                          : 'text-danger'
                       }
                     >
-                      {trackingResult.isPaid ? 'Lunas' : 'Belum Lunas'}
+                      {trackingResult.payment_status === 'Paid'
+                        ? 'Lunas'
+                        : trackingResult.payment_status === 'Partially Paid'
+                        ? 'Bayar Sebagian'
+                        : 'Belum Lunas'}
                     </span>
                   </div>
                 </div>

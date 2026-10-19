@@ -1,4 +1,4 @@
-import { LaundryOrder } from '@/lib/dataStore';
+import type { TransactionWithRelations } from '@/lib/database.types';
 
 export type StatusFilterTab = 'semua' | 'dalam_proses' | 'siap_diambil' | 'selesai';
 
@@ -17,8 +17,8 @@ export interface ServiceSummaryItem {
 }
 
 export interface DataCucianViewModelState {
-  orders: LaundryOrder[];
-  filteredOrders: LaundryOrder[];
+  orders: TransactionWithRelations[];
+  filteredOrders: TransactionWithRelations[];
   stats: DataCucianStats;
   serviceSummaries: ServiceSummaryItem[];
   searchQuery: string;
@@ -32,3 +32,4 @@ export interface DataCucianViewModelState {
   };
   isAddModalOpen: boolean;
 }
+

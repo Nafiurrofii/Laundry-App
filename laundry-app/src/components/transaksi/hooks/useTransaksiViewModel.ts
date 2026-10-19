@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { dataStore, LaundryOrder } from '@/lib/dataStore';
+import { dataStore } from '@/lib/dataStore';
+import type { TransactionWithRelations } from '@/lib/database.types';
 import { TransaksiService } from '../service/transaksiService';
 import { TransaksiMutations } from '../mutations/transaksiMutations';
 import { TransaksiFilter } from '../types';
+import type { PaymentMethod } from '@/lib/database.types';
 
 export function useTransaksiViewModel() {
-  const [orders, setOrders] = useState<LaundryOrder[]>([]);
+  const [orders, setOrders] = useState<TransactionWithRelations[]>([]);
   const [filter, setFilter] = useState<TransaksiFilter>({
     search: '',
     paymentStatus: 'semua',
   });
-  const [selectedOrder, setSelectedOrder] = useState<LaundryOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<TransactionWithRelations | null>(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
   const refresh = useCallback(() => {
@@ -29,7 +31,7 @@ export function useTransaksiViewModel() {
     return TransaksiService.filterTransactions(orders, filter);
   }, [orders, filter]);
 
-  const viewReceipt = (order: LaundryOrder) => {
+  const viewReceipt = (order: TransactionWithRelations) => {
     setSelectedOrder(order);
     setIsReceiptModalOpen(true);
   };
@@ -39,8 +41,8 @@ export function useTransaksiViewModel() {
     setIsReceiptModalOpen(false);
   };
 
-  const handlePayOrder = (id: string, method: 'QRIS' | 'Tunai') => {
-    TransaksiMutations.markAsPaid(id, method);
+  const handlePayOrder = (receiptNumber: string, method: PaymentMethod) => {
+    TransaksiMutations.markAsPaid(receiptNumber, method);
     refresh();
   };
 
@@ -56,3 +58,4 @@ export function useTransaksiViewModel() {
     handlePayOrder,
   };
 }
+

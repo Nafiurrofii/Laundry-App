@@ -1,4 +1,5 @@
 import { dataStore, LaundryOrder } from '@/lib/dataStore';
+import { SupabaseService } from '@/lib/supabaseService';
 import { ServicePricePlan } from '../types';
 
 export class LandingService {
@@ -34,7 +35,14 @@ export class LandingService {
     ];
   }
 
-  public static trackOrder(orderId: string): LaundryOrder | null {
+  public static async trackOrder(orderId: string): Promise<LaundryOrder | null> {
+    try {
+      const { data } = await SupabaseService.fetchTransactionByReceipt(orderId);
+      if (data) return data;
+    } catch (e) {
+      console.warn('Error fetching tracking from Supabase:', e);
+    }
     return dataStore.getOrderById(orderId) || null;
   }
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { dataStore } from '@/lib/dataStore';
+import { dataStore, cashFlowStore } from '@/lib/dataStore';
 import { LaporanService } from '../service/laporanService';
 import { LaporanMutations } from '../mutations/laporanMutations';
 import { LaporanViewModelState } from '../types';
@@ -16,8 +16,12 @@ export function useLaporanViewModel() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = dataStore.subscribe(refresh);
-    return () => unsubscribe();
+    const unsubOrders = dataStore.subscribe(refresh);
+    const unsubCash = cashFlowStore.subscribe(refresh);
+    return () => {
+      unsubOrders();
+      unsubCash();
+    };
   }, [refresh]);
 
   const handleDownloadPDF = () => {

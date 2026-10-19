@@ -47,3 +47,26 @@ export interface PrediksiViewModelState {
   hasInsufficientStock: boolean;
   inventory: StockInventoryItem[];
 }
+
+// =========================================================
+// ML / Python API types
+// =========================================================
+
+/** Respons dari Python API (/prediksi) */
+export interface MLPredictionResponse {
+  message: string;
+  input: { kg: number };
+  prediksi: Record<string, number>;
+}
+
+/** State prediksi dari model ML Random Forest */
+export interface MLPredictionState {
+  /** true ketika sedang menunggu respons API */
+  isLoading: boolean;
+  /** pesan error jika request gagal */
+  error: string | null;
+  /** hasil prediksi (key = nama target dari model, value = nilai prediksi) */
+  prediksi: Record<string, number> | null;
+  /** waktu terakhir prediksi berhasil */
+  lastFetchedAt: Date | null;
+}

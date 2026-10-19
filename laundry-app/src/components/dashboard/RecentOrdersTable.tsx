@@ -3,25 +3,23 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { LaundryOrder } from '@/lib/dataStore';
+import type { TransactionWithRelations, LaundryStatus } from '@/lib/database.types';
+import { LAUNDRY_STATUS_LABEL } from '@/lib/database.types';
 
 interface RecentOrdersTableProps {
-  orders: LaundryOrder[];
+  orders: TransactionWithRelations[];
 }
 
 export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ orders }) => {
-  const getBadgeClass = (status: LaundryOrder['status']) => {
+  const getBadgeClass = (status: LaundryStatus) => {
     switch (status) {
-      case 'Disetrika':
-        return 'badge-disetrika';
-      case 'Dicuci':
+      case 'Processing':
         return 'badge-dicuci';
-      case 'Siap diambil':
+      case 'Completed':
         return 'badge-siap';
-      case 'Diterima':
-        return 'badge-diterima';
-      case 'Selesai':
+      case 'Picked Up':
         return 'badge-selesai';
+      case 'Received':
       default:
         return 'badge-diterima';
     }
@@ -55,17 +53,17 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ orders }) 
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id}>
-                <td className="order-id-cell">{order.id}</td>
-                <td className="customer-cell">{order.customerName}</td>
-                <td>{order.service}</td>
-                <td>{order.weight} kg</td>
+              <tr key={order.receipt_number}>
+                <td className="order-id-cell">{order.receipt_number}</td>
+                <td className="customer-cell">{order.customer?.name ?? ''}</td>
+                <td>{order.service?.service_name ?? ''}</td>
+                <td>{order.weight_kg} kg</td>
                 <td className="total-cell">
-                  Rp{order.totalPrice.toLocaleString('id-ID')}
+                  Rp{(order.total_price ?? 0).toLocaleString('id-ID')}
                 </td>
                 <td>
                   <span className={`badge ${getBadgeClass(order.status)}`}>
-                    {order.status}
+                    {LAUNDRY_STATUS_LABEL[order.status]}
                   </span>
                 </td>
               </tr>

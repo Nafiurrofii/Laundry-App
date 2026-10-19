@@ -26,11 +26,11 @@ export function useLandingViewModel() {
     setTrackingNotFound(false);
   };
 
-  const handleSearch = (queryToSearch?: string) => {
+  const handleSearch = async (queryToSearch?: string) => {
     const q = queryToSearch !== undefined ? queryToSearch : searchQuery;
     if (!q.trim()) return;
 
-    const res = LandingMutations.searchTracking(q);
+    const res = await LandingMutations.searchTracking(q);
     if (res) {
       setTrackingResult(res);
       setTrackingNotFound(false);

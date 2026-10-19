@@ -3,12 +3,22 @@ import pickle
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="Laundry Prediction API",
     description="API prediksi kebutuhan sabun dan parfum",
     version="1.0.0",
+)
+
+# CORS: izinkan akses dari Next.js app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Memuat model saat aplikasi dimulai
@@ -21,13 +31,16 @@ target_names = saved_model["target_names"]
 
 
 class PredictionInput(BaseModel):
-    kg: float = Field(gt=0, le=10, description="Berat cucian dalam kg")
+    kg: float = Field(gt=0, le=1000, description="Berat cucian dalam kg")
 
 
 @app.get("/")
 def home():
     return {
         "message": "Laundry Prediction API berjalan",
+        "model": "Random Forest",
+        "target_names": target_names,
+        "feature_names": feature_names,
     }
 
 

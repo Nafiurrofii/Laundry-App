@@ -11,7 +11,7 @@ export class PrediksiService {
    */
   public static getTodayActiveWeight(): number {
     const orders = dataStore.getOrders();
-    return orders.reduce((sum, o) => sum + o.weight, 0);
+    return orders.reduce((sum, o) => sum + (o.weight_kg || 0), 0);
   }
 
   /**

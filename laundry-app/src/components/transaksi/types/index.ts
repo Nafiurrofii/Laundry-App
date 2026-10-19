@@ -1,4 +1,4 @@
-import { LaundryOrder } from '@/lib/dataStore';
+import type { TransactionWithRelations } from '@/lib/database.types';
 
 export interface TransaksiFilter {
   search: string;
@@ -6,9 +6,10 @@ export interface TransaksiFilter {
 }
 
 export interface TransaksiViewModelState {
-  orders: LaundryOrder[];
-  filteredOrders: LaundryOrder[];
+  orders: TransactionWithRelations[];
+  filteredOrders: TransactionWithRelations[];
   filter: TransaksiFilter;
-  selectedOrder: LaundryOrder | null;
+  selectedOrder: TransactionWithRelations | null;
   isReceiptModalOpen: boolean;
 }
+

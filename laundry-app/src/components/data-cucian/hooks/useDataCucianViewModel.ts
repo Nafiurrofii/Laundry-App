@@ -1,13 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { dataStore, LaundryOrder } from '@/lib/dataStore';
+import { dataStore } from '@/lib/dataStore';
+import type { TransactionWithRelations, LaundryStatus } from '@/lib/database.types';
 import { DataCucianService } from '../service/dataCucianService';
 import { DataCucianMutations } from '../mutations/dataCucianMutations';
 import { StatusFilterTab } from '../types';
 
 export function useDataCucianViewModel() {
-  const [allOrders, setAllOrders] = useState<LaundryOrder[]>([]);
+  const [allOrders, setAllOrders] = useState<TransactionWithRelations[]>(() =>
+    dataStore.getOrders()
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedService, setSelectedService] = useState('Semua layanan');
   const [activeTab, setActiveTab] = useState<StatusFilterTab>('semua');
@@ -18,8 +23,23 @@ export function useDataCucianViewModel() {
     setAllOrders(dataStore.getOrders());
   }, []);
 
+  const syncData = useCallback(async () => {
+    setIsSyncing(true);
+    try {
+      const orders = await DataCucianService.fetchAllFromDatabase();
+      setAllOrders(orders);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
   useEffect(() => {
     refresh();
+    setIsLoading(true);
+    DataCucianService.fetchAllFromDatabase().finally(() => {
+      setIsLoading(false);
+    });
+
     const unsubscribe = dataStore.subscribe(refresh);
     return () => unsubscribe();
   }, [refresh]);
@@ -33,15 +53,15 @@ export function useDataCucianViewModel() {
     [allOrders]
   );
 
-  // Tab count badges
+  // Tab count badges – sesuai DB status enum
   const tabCounts = useMemo(() => {
     return {
       semua: allOrders.length,
       dalam_proses: allOrders.filter((o) =>
-        ['Diterima', 'Dicuci', 'Disetrika'].includes(o.status)
+        ['Received', 'Processing'].includes(o.status)
       ).length,
-      siap_diambil: allOrders.filter((o) => o.status === 'Siap diambil').length,
-      selesai: allOrders.filter((o) => o.status === 'Selesai').length,
+      siap_diambil: allOrders.filter((o) => o.status === 'Completed').length,
+      selesai: allOrders.filter((o) => o.status === 'Picked Up').length,
     };
   }, [allOrders]);
 
@@ -56,13 +76,13 @@ export function useDataCucianViewModel() {
   }, [allOrders, searchQuery, selectedService, activeTab]);
 
   // Action handlers
-  const handleStatusChange = (id: string, newStatus: LaundryOrder['status']) => {
-    DataCucianMutations.updateStatus(id, newStatus);
+  const handleStatusChange = async (receiptNumber: string, newStatus: LaundryStatus) => {
+    await DataCucianMutations.updateStatus(receiptNumber, newStatus);
   };
 
-  const handleCreateOrder = (data: any) => {
-    DataCucianMutations.createOrder(data);
+  const handleCreateOrder = async (data: any) => {
     setIsAddModalOpen(false);
+    await DataCucianMutations.createOrder(data);
   };
 
   return {
@@ -78,9 +98,13 @@ export function useDataCucianViewModel() {
     setActiveTab,
     tabCounts,
     isAddModalOpen,
+    isLoading,
+    isSyncing,
+    syncData,
     openAddModal: () => setIsAddModalOpen(true),
     closeAddModal: () => setIsAddModalOpen(false),
     handleStatusChange,
     handleCreateOrder,
   };
 }
+
