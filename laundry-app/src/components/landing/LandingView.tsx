@@ -68,7 +68,7 @@ export const LandingView: React.FC = () => {
           {/* Hero Banner Section */}
           <section className="hero-section">
             <div className="hero-left">
-              <div className="hero-pill">RISKY LAUNDRY • MELATI</div>
+              <div className="hero-pill">RISKY LAUNDRY • MOJOROTO KOTA KEDIRI</div>
               <h1 className="hero-title">
                 Cucian beres.
                 <br />

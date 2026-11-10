@@ -123,7 +123,7 @@ export const TransaksiView: React.FC = () => {
           <div className="modal-content receipt-box" onClick={(e) => e.stopPropagation()}>
             <div className="receipt-header">
               <div className="receipt-brand">LaundryKu</div>
-              <div className="receipt-sub">Risky Laundry • Cabang Melati Bandung</div>
+              <div className="receipt-sub">Risky Laundry • Mojoroto Kota Kediri</div>
               <button className="receipt-close" onClick={closeReceipt}>
                 <X size={18} />
               </button>

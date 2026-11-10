@@ -46,7 +46,7 @@ export const Sidebar: React.FC = () => {
 
         <div className="branch-card">
           <div className="branch-title">Risky Laundry</div>
-          <div className="branch-subtitle">Cabang Melati • Bandung</div>
+          <div className="branch-subtitle">Mojoroto • Kota Kediri</div>
         </div>
       </div>
 

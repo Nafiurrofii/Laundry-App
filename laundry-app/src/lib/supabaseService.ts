@@ -145,7 +145,7 @@ export class SupabaseService {
       }
 
       return {
-        data: (data || []).map((s) => ({
+        data: (data || []).map((s: any) => ({
           ...s,
           price_per_kg: Number(s.price_per_kg),
         })),
